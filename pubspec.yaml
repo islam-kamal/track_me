@@ -1,0 +1,33 @@
+name: track_me
+description: Track Me records a signed-in user's location continuously and lets admins view those positions on a map.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_auth: ^5.5.4
+  firebase_core: ^3.13.0
+  firebase_database: ^11.3.5
+  flutter_map: ^7.0.2
+  google_sign_in: ^6.2.2
+  latlong2: ^0.9.1
+  nt_location_tracking:
+    path: packages/nt_location_tracking
+  nt_location_tracking_firebase:
+    path: packages/nt_location_tracking_firebase
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  config:
+    enable-swift-package-manager: false

@@ -1,0 +1,24 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "admins": {
+      ".read": "auth != null",
+      ".write": false
+    },
+    "profiles": {
+      ".read": "auth != null && (root.child('profiles').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).val() === true)",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && newData.child('email').val() === auth.token.email && ((newData.child('role').val() === 'user' && (!data.exists() || data.child('role').val() === 'user')) || (newData.child('role').val() === 'admin' && root.child('admins').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).val() === true && (!data.exists() || data.child('role').val() === 'user' || data.child('role').val() === 'admin')))"
+      }
+    },
+    "users": {
+      ".read": "auth != null && (root.child('profiles').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).val() === true)",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

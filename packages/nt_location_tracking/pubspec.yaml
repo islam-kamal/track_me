@@ -1,0 +1,35 @@
+name: nt_location_tracking
+description: Flutter plugin for continuous location tracking with pluggable backend storage. Uses flutter_background_geolocation on iOS and a foreground service on Android.
+version: 0.1.0
+homepage: https://github.com/example/nt_location_tracking
+
+environment:
+  sdk: ^3.12.1
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_background_geolocation: ^4.16.9
+  geocoding: ^3.0.0
+  permission_handler: ^11.4.0
+  google_maps_flutter: ^2.10.0
+  google_maps_flutter_android: ^2.14.0
+  google_maps_flutter_platform_interface: ^2.10.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.nt_location_tracking
+        pluginClass: LocationTrackingPlugin
+      ios:
+        pluginClass: LocationTrackingPlugin
