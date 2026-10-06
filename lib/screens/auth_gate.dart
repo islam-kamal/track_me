@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/auth_service.dart';
 import '../auth/profile_repository.dart';
 import '../auth/user_profile.dart';
+import '../tracking/tracking_session.dart';
+import 'admin_home_screen.dart';
 import 'permission_screen.dart';
 import 'sign_in_screen.dart';
 import 'user_home_screen.dart';
@@ -98,9 +100,35 @@ class _ProfileGateState extends State<_ProfileGate> {
             ),
           );
         }
-        return _TrackedUserEntry(profile: snapshot.data!);
+        final profile = snapshot.data!;
+        if (profile.isAdmin) {
+          return _AdminEntry(profile: profile);
+        }
+        return _TrackedUserEntry(profile: profile);
       },
     );
+  }
+}
+
+class _AdminEntry extends StatefulWidget {
+  const _AdminEntry({required this.profile});
+
+  final UserProfile profile;
+
+  @override
+  State<_AdminEntry> createState() => _AdminEntryState();
+}
+
+class _AdminEntryState extends State<_AdminEntry> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(TrackingSession.ensureNotTracking(widget.profile.uid));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AdminHomeScreen(profile: widget.profile);
   }
 }
 

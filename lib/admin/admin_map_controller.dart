@@ -21,8 +21,7 @@ class TrackedPerson {
 
 /// Loads tracked users for the admin map.
 ///
-/// The live marker follows each saved position.
-/// Today's history keeps one location for each hour of the local day.
+/// Admins are omitted. A selected person's path is every location saved today.
 class AdminMapController extends ChangeNotifier {
   AdminMapController({DatabaseReference? root})
     : _root =
@@ -80,6 +79,9 @@ class AdminMapController extends ChangeNotifier {
             continue;
           }
           final profile = UserProfile.fromValue(entry.key.toString(), raw);
+          if (profile.isAdmin) {
+            continue;
+          }
           var location = await _loadCurrent(profile.uid);
           final current = known[profile.uid];
           if (current != null &&
@@ -182,7 +184,7 @@ class AdminMapController extends ChangeNotifier {
     next[index] = TrackedPerson(profile: people[index].profile, location: point);
     people = next;
     if (uid == selectedUid && point != null) {
-      todayHistory = _hourlyToday([...todayHistory, point]);
+      todayHistory = _todayPath([...todayHistory, point]);
     }
     lastRefreshed = DateTime.now();
     notifyListeners();
@@ -212,7 +214,7 @@ class AdminMapController extends ChangeNotifier {
       }
     }
     final current = selected?.location;
-    todayHistory = _hourlyToday([
+    todayHistory = _todayPath([
       ...points,
       ?current,
     ]);
@@ -221,22 +223,21 @@ class AdminMapController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// One location per clock hour. Extra saves inside the same hour are dropped.
-  List<LocationPoint> _hourlyToday(List<LocationPoint> points) {
+  /// Every recorded fix from the local day, oldest first.
+  List<LocationPoint> _todayPath(List<LocationPoint> points) {
     final now = DateTime.now();
-    final byHour = <int, LocationPoint>{};
+    final unique = <String, LocationPoint>{};
     for (final point in points) {
       if (!isSameLocalDay(point.timestamp, now)) {
         continue;
       }
-      final hour = point.timestamp.toLocal().hour;
-      final existing = byHour[hour];
-      if (existing == null || point.timestamp.isAfter(existing.timestamp)) {
-        byHour[hour] = point;
-      }
+      final key =
+          '${point.timestamp.toUtc().toIso8601String()}|${point.latitude}|${point.longitude}';
+      unique[key] = point;
     }
-    final hours = byHour.keys.toList()..sort((a, b) => b.compareTo(a));
-    return [for (final hour in hours) byHour[hour]!];
+    final path = unique.values.toList()
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    return path;
   }
 
   Future<LocationPoint?> _loadCurrent(String uid) async {

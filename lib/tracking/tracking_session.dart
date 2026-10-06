@@ -35,4 +35,25 @@ class TrackingSession {
       await LocationTracking.stop();
     }
   }
+
+  /// Stops a running tracker without writing a new location.
+  ///
+  /// Used for admin accounts, which are not recorded.
+  static Future<void> ensureNotTracking(String uid) async {
+    await LocationTracking.initialize(
+      config: LocationTrackingConfig(
+        userId: uid,
+        androidNotificationTitle: 'Track Me',
+        androidNotificationText: 'Recording location for this account',
+        distanceFilterMeters: saveDistanceMeters,
+        intervalSeconds: saveInterval.inSeconds,
+        enableReverseGeocoding: false,
+      ),
+      dependencies: TrackMeBackend.dependencies,
+    );
+    _ready = true;
+    if (await LocationTracking.isTracking()) {
+      await LocationTracking.stop(flush: false);
+    }
+  }
 }

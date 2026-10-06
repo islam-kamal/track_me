@@ -381,7 +381,7 @@ class _PersonDetail extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'One location for each hour today.',
+          'Every location recorded today.',
           style: TextStyle(color: Color(0xFF94A3B8)),
         ),
         const SizedBox(height: 4),
@@ -391,7 +391,7 @@ class _PersonDetail extends StatelessWidget {
                   ? 'Loading today’s locations…'
                   : history.isEmpty
                   ? 'No locations saved today.'
-                  : '${history.length} hour${history.length == 1 ? '' : 's'}'),
+                  : '${history.length} location${history.length == 1 ? '' : 's'} today'),
           style: TextStyle(
             color: error == null
                 ? const Color(0xFF94A3B8)
@@ -414,7 +414,7 @@ class _PersonDetail extends StatelessWidget {
                   SizedBox(
                     width: 52,
                     child: Text(
-                      formatHour(point.timestamp),
+                      formatClock(point.timestamp),
                       style: const TextStyle(
                         color: trackTeal,
                         fontWeight: FontWeight.w700,

@@ -28,6 +28,7 @@ class PeopleMap extends StatefulWidget {
 class _PeopleMapState extends State<PeopleMap> {
   final MapController _controller = MapController();
   String? _framedUid;
+  bool _mapReady = false;
 
   List<TrackedPerson> get _namedPeople => [
     for (final person in widget.people)
@@ -41,8 +42,15 @@ class _PeopleMapState extends State<PeopleMap> {
         widget.selected?.profile.uid != oldWidget.selected?.profile.uid;
     final gainedPins =
         _locatedCount(oldWidget) == 0 && _locatedCount(widget) > 0;
-    if (selectionChanged || gainedPins) {
+    final pathArrived =
+        widget.selected != null &&
+        oldWidget.todayHistory.isEmpty &&
+        widget.todayHistory.isNotEmpty;
+    final openedPerson = selectionChanged && widget.selected != null;
+    if (openedPerson) {
       _framedUid = null;
+    }
+    if (openedPerson || gainedPins || pathArrived) {
       _frameSelection();
     }
   }
@@ -58,19 +66,38 @@ class _PeopleMapState extends State<PeopleMap> {
   }
 
   void _frameSelection() {
+    if (!_mapReady) {
+      return;
+    }
+    final selected = widget.selected;
+    final path = widget.todayHistory;
+    if (selected != null && path.isNotEmpty) {
+      if (_framedUid == selected.profile.uid) {
+        return;
+      }
+      _framedUid = selected.profile.uid;
+      final coordinates = [
+        for (final point in path) LatLng(point.latitude, point.longitude),
+      ];
+      _controller.fitCamera(
+        CameraFit.coordinates(
+          coordinates: coordinates,
+          padding: const EdgeInsets.fromLTRB(36, 140, 36, 280),
+          maxZoom: 16,
+        ),
+      );
+      return;
+    }
+
     final people = _namedPeople;
-    if (people.isEmpty) {
+    if (people.isEmpty || selected != null) {
       return;
     }
-    final focus = widget.selected?.location ?? people.first.location;
-    if (focus == null) {
+    final focus = people.first.location;
+    if (focus == null || _framedUid != null) {
       return;
     }
-    final uid = widget.selected?.profile.uid ?? people.first.profile.uid;
-    if (_framedUid == uid) {
-      return;
-    }
-    _framedUid = uid;
+    _framedUid = people.first.profile.uid;
     _controller.move(LatLng(focus.latitude, focus.longitude), 14);
   }
 
@@ -88,7 +115,10 @@ class _PeopleMapState extends State<PeopleMap> {
       options: MapOptions(
         initialCenter: center,
         initialZoom: focus == null ? 2 : 14,
-        onMapReady: _frameSelection,
+        onMapReady: () {
+          _mapReady = true;
+          _frameSelection();
+        },
       ),
       children: [
         TileLayer(
@@ -100,7 +130,7 @@ class _PeopleMapState extends State<PeopleMap> {
             polylines: [
               Polyline(
                 points: [
-                  for (final point in widget.todayHistory.reversed)
+                  for (final point in widget.todayHistory)
                     LatLng(point.latitude, point.longitude),
                 ],
                 color: trackTeal,

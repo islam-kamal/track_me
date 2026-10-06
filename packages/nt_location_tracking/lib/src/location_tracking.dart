@@ -238,10 +238,12 @@ class LocationTracking {
     await _tracker.start();
   }
 
-  static Future<void> stop() async {
+  static Future<void> stop({bool flush = true}) async {
     _ensureInitialized();
     _stopPeriodicPersistTimer();
-    await _flushLocationOnStop();
+    if (flush) {
+      await _flushLocationOnStop();
+    }
     await _syncTerminatedTrackingState(isTracking: false);
     await _tracker.stop();
   }

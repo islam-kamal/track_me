@@ -15,9 +15,11 @@ String formatWhen(DateTime time) {
   return '${local.month}/${local.day} $hour:$minute';
 }
 
-String formatHour(DateTime time) {
-  final hour = time.toLocal().hour.toString().padLeft(2, '0');
-  return '$hour:00';
+String formatClock(DateTime time) {
+  final local = time.toLocal();
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
 }
 
 bool isSameLocalDay(DateTime time, DateTime day) {
